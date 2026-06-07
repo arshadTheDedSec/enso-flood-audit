@@ -1,1 +1,128 @@
+================================================================================
+FROZEN AUDIT PROTOCOL
+Lock Date: 2026-06-03
+Version: 1.0 FINAL
+DO NOT EDIT
+================================================================================
 
+1. GEV ARCHITECTURE
+────────────────────────────────────────────────────────────────────────────
+
+Scale: Untransformed CFS (cubic feet per second)
+
+Shape parameter ξ: Held constant, bounded [-0.5, 0.5]
+
+Location μ: μ(x) = μ₀ + μ₁·ONI_t (identity link)
+
+Scale σ: log σ(x) = σ₀ + σ₁·ONI_t (exponential link)
+
+Optimizer: L-BFGS-B with multi-start
+
+Multi-start ξ initializations: -0.2, -0.1, 0.0, +0.1 (4 starts)
+
+Start selections for mu/sigma: mean(x), std(x)/1.28
+
+2. COVARIATE (ENSO FORCING)
+────────────────────────────────────────────────────────────────────────────
+
+Covariate: ONI NDJFM (previous November, December + current January, February, March)
+
+Timing: Water year basis (WY = calendar year if peak occurs June-September)
+
+Normalization: Z-score within sample (subtract mean, divide by std)
+
+Source: NOAA Climate Prediction Center (frozen table in ONI_FROZEN.csv)
+
+3. STATIONARY VS NON-STATIONARY
+────────────────────────────────────────────────────────────────────────────
+
+Stationary model: Q_max = μ₀ + σ₀·(GEV residuals), ξ fixed
+
+Non-stationary model: Q_max = μ₀ + μ₁·ONI + σ₀·exp(σ₁·ONI)·(GEV residuals), ξ fixed
+
+Likelihood ratio test: LRT = 2(ℓ_stationary - ℓ_nonstationary)
+
+Distribution under H₀: χ²₂ (2 degrees of freedom: μ₁, σ₁)
+
+4. SIGNIFICANCE THRESHOLDS (LOCKED)
+────────────────────────────────────────────────────────────────────────────
+
+LRT p-value threshold: α = 0.05
+
+Pearson correlation threshold: |r| ≥ 0.15 (absolute value)
+
+KS test threshold: p ≥ 0.05 (for Coles residuals ~ Exp(1))
+
+FDR correction: Benjamini-Hochberg, α = 0.10
+
+5. CLASSIFICATION RULES (LOCKED)
+────────────────────────────────────────────────────────────────────────────
+
+SURVIVED:      p < 0.05 AND |r| ≥ 0.15 AND KS_p ≥ 0.05 (all three gates pass)
+
+FRAGILE:       p < 0.05 but fails one or more secondary gates (|r|, KS)
+
+MARGINAL:      0.05 ≤ p < 0.10 and r not available (incomplete fitting)
+
+NULL:          p ≥ 0.10 or insufficient data
+
+6. DATA REQUIREMENTS
+────────────────────────────────────────────────────────────────────────────
+
+Minimum annual peaks: n ≥ 10 per dam
+
+Time period: 1950-2025 (where ONI available)
+
+Data alignment: Discharge water year must match ONI water year
+
+Missing values: Exclude any water year with NaN in either discharge or ONI
+
+7. DIAGNOSTIC CHECKS
+────────────────────────────────────────────────────────────────────────────
+
+Residual normality: Visual Q-Q plot (not formal test, documentation only)
+
+Coles residuals: u = [1 + ξ(x-μ)/σ]^(-1/ξ), should ~ Exp(1)
+
+KS test: Kolmogorov-Smirnov test of u ~ Exp(1)
+
+8. OUTPUT FORMAT (LOCKED)
+────────────────────────────────────────────────────────────────────────────
+
+CSV columns:
+  dam (name)
+  state (two-letter code)
+  gauge (USGS station number)
+  n (sample size after ONI alignment)
+  lrt_p (likelihood ratio test p-value)
+  r (Pearson correlation coefficient)
+  ks_p (Kolmogorov-Smirnov p-value for residuals)
+  status (SURVIVED | FRAGILE | MARGINAL | NULL)
+
+9. REPRODUCIBILITY
+────────────────────────────────────────────────────────────────────────────
+
+Random seed: np.random.seed(42)
+
+Optimization tolerance: default L-BFGS-B (gtol=1e-05)
+
+Numerical precision: float64 throughout
+
+File checksums: Will be computed after each run
+
+10. NOTES
+────────────────────────────────────────────────────────────────────────────
+
+This protocol is FROZEN as of 2026-06-03.
+No edits to classification rules, thresholds, or GEV architecture permitted.
+Any changes require NEW VERSION number and explicit justification.
+
+Previous modifications (before freezing):
+  - Initial GEV protocol (Phase 1-4, 14 dams)
+  - Extended to 20 dams (Phase 5, 5 additional dams)
+  - Wolf Creek proxy validation (1 additional dam)
+
+All modifications locked and documented.
+No retroactive changes to methodology.
+
+================================================================================
