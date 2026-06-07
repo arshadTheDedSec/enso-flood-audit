@@ -2,7 +2,7 @@
 Reproducible multi-stage audit of ENSO–flood teleconnections
 # ENSO–Flood Audit: A Reproducible Multi-Stage Assessment
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.XXXXXXX.svg)](https://doi.org/10.5281/zenodo.XXXXXXX)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20579277.svg)](https://doi.org/10.5281/zenodo.20579277)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Overview
